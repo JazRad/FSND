@@ -29,6 +29,27 @@
 		<p>
 			<i class="fab fa-facebook-f"></i> {% if venue.facebook_link %}<a href="{{ venue.facebook_link }}" target="_blank">{{ venue.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
 		</p>
+		<p>
+		<button type="button" id="delete-button" class="btn btn-danger" data-id="{{venue.id}}">Delete Venue</button>
+		</p>
+		<script>
+			deleteBtn = document.getElementById('delete-button')
+			deleteBtn.onclick = function(e){
+				const venue_id = e.target.dataset['id'];
+				fetch('/venues/' + venue_id,{
+					method:"DELETE"
+				})
+
+			.then(function(){
+				window.location.href = '/venues';
+			})
+
+			.catch(function(e){
+				console.log('error',e)
+			})
+			}
+		</script>
+
 		{% if venue.seeking_talent %}
 		<div class="seeking">
 			<p class="lead">Currently seeking talent</p>
