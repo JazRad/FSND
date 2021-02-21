@@ -93,6 +93,23 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
+  def delete_question(question_id):
+    
+    try:
+      question = Question.query.filter(Question.id == question_id).one_or_none()
+      
+      if question is None:
+        abort(404)
+      
+      question.delete()
+    
+      return jsonify({
+        'success':True
+      })
+    
+    except:
+      abort(422)
 
   '''
   @TODO: 
@@ -104,6 +121,26 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  @app.route('/questions', methods=['POST'])
+  def add_question():
+    body =  request.get_json()
+
+    new_question = body.get('question')
+    new_answer = body.get('answer')
+    new_difficulty = body.get('difficulty')
+    new_category = body.get('category')
+
+    try:
+      question = Question(question=new_question, answer=new_answer, difficulty=new_difficulty, category=new_category)
+      question.insert()
+
+      return jsonify({
+        'success':True
+      })
+
+    except:
+      abort(422)
+
 
   '''
   @TODO: 
@@ -115,6 +152,29 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route('/searchQuestions', methods=['POST'])
+  def search_question():
+    data = request.get_json()
+    search_term = data.get('searchTerm')
+
+    try:
+      results = Question.query.filter(Question.question.ilike('%' + search_term + '%')).all()
+      print(results)
+
+      formatted_results = [question.format() for question in results]
+
+      print(formatted_results)
+
+      return jsonify({
+      'success': True,
+      'questions': formatted_results,
+      'total_questions': len(formatted_results),
+      'current_category': None
+      })
+    
+    except:
+      abort(422)
+
 
   '''
   @TODO: 
@@ -134,7 +194,7 @@ def create_app(test_config=None):
     formatted_categories_types = [category.type for category in categories]
 
     return jsonify({
-      'success:': True,
+      'success':True,
       'questions': current_questions,
       'total_questions': len(Question.query.all()),
       'current_category': category_id
@@ -153,11 +213,67 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
+  @app.route('/quizzes', methods=['POST'])
+  def play_question():
+    body = request.get_json()
+
+    previous_questions = body.get('previous_questions')
+    quiz_category = body.get('quiz_category')
+
+    unasked = []
+
+    if quiz_category['id'] == 0:
+      questions = Question.query.all()
+
+    else:
+      questions = Question.query.filter_by(category=quiz_category['id'])
+
+      if questions is None:
+        abort(404)
+
+      for question in questions:
+        if question not in previous_questions:
+          unasked.append(question.format())
+
+          result = random.choice(unasked)
+          previous_questions.append(result)
+
+      return jsonify({
+        'success':True,
+        'previousQuestions': previous_questions,
+        'question':result
+      })
+
+
   '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+      'success':False,
+      'error':404,
+      'message': 'Not found'
+    })
+
+  @app.errorhandler(400)
+  def method_error(error):
+    return jsonify({
+      'sucess':False,
+      'error':400,
+      'message': 'Method not allowed'
+    })
+
+  @app.errorhandler(422)
+  def unprocessable_error(error): 
+    return jsonify({
+      'success':False,
+      'error':422,
+      'message':'Unprocessable Entity'
+    })
   
   return app
 

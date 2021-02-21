@@ -41,7 +41,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
 
-
     def test_get_questions(self):
         res = self.client().get('/questions')
         data = json.loads(res.data)
@@ -58,10 +57,20 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code,200)
-        self.assertEqual(data['success'],True)
+        self.assertEqual(data['success'], True)
         self.assertTrue(data['questions'])
         self.assertTrue(data['total_questions'])
         self.assertEqual(data['current_category'],5)
+
+    def test_delete_question(self):
+        res = self.client().delete('/questions/4')
+        data = json.loads(res.data)
+
+        question = Question.query.filter(Question.id == 4).one_or_none()
+
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(question, None)
 
 
 # Make the tests conveniently executable
