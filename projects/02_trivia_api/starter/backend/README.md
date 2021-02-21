@@ -101,7 +101,7 @@ This README is missing documentation of your endpoints. Below is an example for 
 '5' : "Entertainment",
 '6' : "Sports"}
 
-### GET/questions
+### GET '/questions'
 
 - General:
   - Returns categories and question objects, current category, success value, and total number of questions
@@ -192,7 +192,7 @@ This README is missing documentation of your endpoints. Below is an example for 
   "total_questions": 19
   }
 
-### DELETE/questions/<int:question_id>
+### DELETE '/questions/<int:question_id>'
 
 - General:
   - Deletes a question based on question_id and returns id of deleted question, success message and value
@@ -275,7 +275,7 @@ This README is missing documentation of your endpoints. Below is an example for 
   "total_questions": 19
   }
 
-### POST/questions
+### POST '/questions'
 
 - General:
   - Creates a new question using the submitted.
@@ -385,7 +385,7 @@ This README is missing documentation of your endpoints. Below is an example for 
   "total_questions": 20
   }
 
-### POST/questions/search
+### POST '/questions/search'
 
 - General:
   - Search for questions based on a search term and returns question objects.
@@ -467,7 +467,7 @@ This README is missing documentation of your endpoints. Below is an example for 
   "total_questions": 10
   }
 
-### GET/questions/<int:category_id>
+### GET '/questions/<int:category_id>'
 
 - General:
   - Return questions based on category
@@ -515,7 +515,7 @@ This README is missing documentation of your endpoints. Below is an example for 
   "total_questions": 5
   }
 
-### POST/quizzes
+### POST '/quizzes'
 
 - General:
   - Take category and previous question parameters
