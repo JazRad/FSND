@@ -109,7 +109,7 @@ def create_app(test_config=None):
       })
     
     except:
-      abort(422)
+      abort(400)
 
   '''
   @TODO: 
@@ -257,15 +257,15 @@ def create_app(test_config=None):
       'success':False,
       'error':404,
       'message': 'Not found'
-    })
+    }), 404
 
   @app.errorhandler(400)
   def method_error(error):
     return jsonify({
-      'sucess':False,
+      'success':False,
       'error':400,
       'message': 'Method not allowed'
-    })
+    }), 400
 
   @app.errorhandler(422)
   def unprocessable_error(error): 
@@ -273,7 +273,7 @@ def create_app(test_config=None):
       'success':False,
       'error':422,
       'message':'Unprocessable Entity'
-    })
+    }), 422
   
   return app
 
