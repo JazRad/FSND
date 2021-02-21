@@ -67,17 +67,31 @@ One note before you delve into your tasks: for each endpoint you are expected to
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
 REVIEW_COMMENT
-
+```
 This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
+```
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
+## Introduction
 
-GET '/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+- The trivia app is built as a RESTful API and follow those conventions
+
+## Getting Started
+
+- Authentication: This version of the application does not require authentication or API keys.
+
+## Error Handling
+
+- Errors are returned as JSON objects in the following format:
+  {
+  "success": False,
+  "error": 404,
+  "message:" "Resource Not Found"
+  }
+
+## Endpoints
+
+### GET '/categories'
+- Fetches a dictionary of categories 
 - Request Arguments: None
 - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
 {'1' : "Science",
@@ -264,9 +278,9 @@ GET '/categories'
 ### POST/questions
 
 - General:
-  - Creates a new question using the submitted . Returns the id of the created question, tital questions, and question list based on the current page number to update the frontend.
+  - Creates a new question using the submitted.
 
-* Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"Which was the worst year?", "answer":"2020", "difficulty":"2", "category": "4"}'
+* Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"Which was green and blue?", "answer":"green", "difficulty":"2", "category": "4"}'
   "created": 25,
   "questions": [
   {
@@ -456,7 +470,7 @@ GET '/categories'
 ### GET/questions/<int:category_id>
 
 - General:
-  - Return questions based on category and success value
+  - Return questions based on category
 
 * Sample: curl -X GET http://127.0.0.1:5000/questions/4 -H "Content-Type: application/json" -d '{"query" : { "category": "4" }}'
   "current_category": 4,
