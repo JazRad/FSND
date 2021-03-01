@@ -1,13 +1,13 @@
 import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm.exc import NoResultFound
 from flask_cors import CORS
 import random
 
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
-
 
 '''
 Define helper method to support pagination
@@ -44,9 +44,9 @@ def create_app(test_config=None):
     def after_request(response):
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.headers.add('Access-Control-Allow-Headers',
-                            'Content-Type,Authorization,true')
+                             'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods',
-                            'GET,POST,DELETE,PATCH,OPTIONS')
+                             'GET,POST,DELETE,PATCH,OPTIONS')
         return response
 
     '''
@@ -109,7 +109,7 @@ def create_app(test_config=None):
 
         try:
             question = Question.query.filter(Question.id ==
-                                            question_id).one_or_none()
+                                             question_id).one_or_none()
 
             if question is None:
                 abort(404)
@@ -120,7 +120,7 @@ def create_app(test_config=None):
                 'success': True
             })
 
-        except:
+        except NoResultFound:
             abort(400)
 
     '''
@@ -130,8 +130,8 @@ def create_app(test_config=None):
     category, and difficulty score.
 
     TEST: When you submit a question on the "Add" tab,
-    the form will clear and the question will appear at the end of the last page
-    of the questions list in the "List" tab.
+    the form will clear and the question will appear at the end of the last
+    page of the questions list in the "List" tab.
     '''
 
     @app.route('/questions', methods=['POST'])
@@ -145,14 +145,15 @@ def create_app(test_config=None):
 
         try:
             question = Question(question=new_question, answer=new_answer,
-                                difficulty=new_difficulty, category=new_category)
+                                difficulty=new_difficulty,
+                                category=new_category)
             question.insert()
 
             return jsonify({
               'success': True
             })
 
-        except Question.DoesNotExist:
+        except NoResultFound:
             abort(422)
 
     '''
@@ -172,13 +173,11 @@ def create_app(test_config=None):
         search_term = data.get('searchTerm')
 
         try:
-            results = Question.query.filter(Question.question.
-                                            ilike('%' + search_term + '%')).all()
-            print(results)
+            results = Question.query.filter(Question.question
+                                            .ilike('%' + search_term + '%')
+                                            ).all()
 
             formatted_results = [question.format() for question in results]
-
-            print(formatted_results)
 
             return jsonify({
               'success': True,
@@ -187,7 +186,7 @@ def create_app(test_config=None):
               'current_category': None
             })
 
-        except Question.DoesNotExist:
+        except NoResultFound:
             abort(422)
 
     '''
@@ -235,29 +234,29 @@ def create_app(test_config=None):
         previous_questions = body.get('previous_questions')
         quiz_category = body.get('quiz_category')
 
+        result = []
         unasked = []
 
         if quiz_category['id'] == 0:
             questions = Question.query.all()
 
         else:
-            questions = Question.query.filter_by(category=quiz_category['id'])
+            questions = Question.query.filter_by(
+                                                 category=quiz_category['id']
+                                                 )
 
-            if questions is None:
-                abort(404)
+        for question in questions:
+            if question not in previous_questions:
+                unasked.append(question.format())
 
-            for question in questions:
-                if question not in previous_questions:
-                    unasked.append(question.format())
+                result = random.choice(unasked)
+                previous_questions.append(result)
 
-                    result = random.choice(unasked)
-                    previous_questions.append(result)
-
-            return jsonify({
-              'success': True,
-              'previousQuestions': previous_questions,
-              'question': result
-            })
+        return jsonify({
+            'success': True,
+            'previousQuestions': previous_questions,
+            'question': result
+        })
 
     '''
     @TODO:
@@ -288,4 +287,4 @@ def create_app(test_config=None):
           'message': 'Unprocessable Entity'
         }), 422
 
-  return app
+    return app
