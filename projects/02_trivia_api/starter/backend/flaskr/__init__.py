@@ -112,7 +112,7 @@ def create_app(test_config=None):
                                              question_id).one_or_none()
 
             if question is None:
-                abort(404)
+                abort(400)
 
             question.delete()
 
@@ -143,18 +143,23 @@ def create_app(test_config=None):
         new_difficulty = body.get('difficulty')
         new_category = body.get('category')
 
-        try:
-            question = Question(question=new_question, answer=new_answer,
-                                difficulty=new_difficulty,
-                                category=new_category)
-            question.insert()
-
-            return jsonify({
-              'success': True
-            })
-
-        except NoResultFound:
+        if (new_question is None or new_answer is None or new_difficulty is None or new_category is None):
             abort(422)
+
+        else:
+
+            try:
+                question = Question(question=new_question, answer=new_answer,
+                                    difficulty=new_difficulty,
+                                    category=new_category)
+                question.insert()
+
+                return jsonify({
+                    'success': True
+                })
+
+            except NoResultFound:
+                abort(422)
 
     '''
     @TODO:
@@ -230,33 +235,37 @@ def create_app(test_config=None):
     @app.route('/quizzes', methods=['POST'])
     def play_question():
         body = request.get_json()
+        
+        try:
+            previous_questions = body.get('previous_questions')
+            quiz_category = body.get('quiz_category')
 
-        previous_questions = body.get('previous_questions')
-        quiz_category = body.get('quiz_category')
+            result = []
+            unasked = []
 
-        result = []
-        unasked = []
+            if quiz_category['id'] == 0:
+                questions = Question.query.all()
 
-        if quiz_category['id'] == 0:
-            questions = Question.query.all()
+            else:
+                questions = Question.query.filter_by(
+                                                    category=quiz_category['id']
+                                                    )
 
-        else:
-            questions = Question.query.filter_by(
-                                                 category=quiz_category['id']
-                                                 )
+            for question in questions:
+                if question not in previous_questions:
+                    unasked.append(question.format())
 
-        for question in questions:
-            if question not in previous_questions:
-                unasked.append(question.format())
+                    result = random.choice(unasked)
+                    previous_questions.append(result)
 
-                result = random.choice(unasked)
-                previous_questions.append(result)
+            return jsonify({
+                'success': True,
+                'previousQuestions': previous_questions,
+                'question': result
+                })
 
-        return jsonify({
-            'success': True,
-            'previousQuestions': previous_questions,
-            'question': result
-        })
+        except NoResultFound:
+            abort(400)
 
     '''
     @TODO:
@@ -276,7 +285,7 @@ def create_app(test_config=None):
         return jsonify({
           'success': False,
           'error': 400,
-          'message': 'Method not allowed'
+          'message': 'Bad request'
         }), 400
 
     @app.errorhandler(422)

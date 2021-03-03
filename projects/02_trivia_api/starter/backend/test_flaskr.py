@@ -23,16 +23,11 @@ class TriviaTestCase(unittest.TestCase):
         setup_db(self.app, DB_PATH)
 
         self.error_questions = {
-            "data":
-            [
-                {
-                    "sally": 'Testing my again',
                     "answer": 'ok',
                     "difficulty": '2',
                     "category": '300'
                 }
-            ]
-        }
+
         self.new_question = {
             "question": 'How old was Einstein when he died?',
             "answer": '76',
@@ -50,8 +45,7 @@ class TriviaTestCase(unittest.TestCase):
         }
 
         self.bad_quiz = {
-            "previous_questions": [12],
-            "quiz_category": {"type": "Geography", "id": "0"}
+            "previous_questions": [12]
         }
 
         # binds the app to the current context
@@ -143,13 +137,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Not found')
 
-    def test_400_method_not_allowed(self):
-        res = self.client().post('/quizzes', json=self.bad_quiz)
+    def test_400_bad_request(self):
+        res = self.client().delete('/questions/5000')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Method not allowed')
+        self.assertEqual(data['message'], 'Bad request')
 
     def test_422_unprocessable(self):
         res = self.client().post('/questions', json=self.error_questions)
