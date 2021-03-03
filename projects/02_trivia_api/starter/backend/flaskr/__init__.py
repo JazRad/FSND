@@ -143,7 +143,10 @@ def create_app(test_config=None):
         new_difficulty = body.get('difficulty')
         new_category = body.get('category')
 
-        if (new_question is None or new_answer is None or new_difficulty is None or new_category is None):
+        if (new_question is None
+                or new_answer is None
+                or new_difficulty is None
+                or new_category is None):
             abort(422)
 
         else:
@@ -235,20 +238,20 @@ def create_app(test_config=None):
     @app.route('/quizzes', methods=['POST'])
     def play_question():
         body = request.get_json()
-        
+
         try:
             previous_questions = body.get('previous_questions')
-            quiz_category = body.get('quiz_category')
+            category = body.get('quiz_category')
 
             result = []
             unasked = []
 
-            if quiz_category['id'] == 0:
+            if category['id'] == 0:
                 questions = Question.query.all()
 
             else:
                 questions = Question.query.filter_by(
-                                                    category=quiz_category['id']
+                                                    category=category['id']
                                                     )
 
             for question in questions:
